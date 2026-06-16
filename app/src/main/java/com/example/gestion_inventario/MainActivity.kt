@@ -58,10 +58,23 @@ fun InventoryApp() {
                 arguments = listOf(navArgument("workerName") { type = NavType.StringType })
             ) { backStackEntry ->
                 val name = backStackEntry.arguments?.getString("workerName") ?: ""
-                Screen2(workerName = name, viewModel = stockViewModel)
+                Screen2(
+                    workerName = name,
+                    viewModel = stockViewModel,
+                    onProductClick = { productId ->
+                        navController.navigate("screen3/$productId")
+                    },
+                    onNavigateToScreen4 = {
+                        navController.navigate("screen4")
+                    }
+                )
             }
-            composable("screen3") {
-                Screen3(viewModel = stockViewModel)
+            composable(
+                route = "screen3/{productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getInt("productId") ?: 0
+                Screen3(productId = productId, viewModel = stockViewModel)
             }
             composable("screen4") {
                 Screen4(viewModel = stockViewModel)
