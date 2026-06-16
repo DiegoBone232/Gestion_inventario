@@ -7,11 +7,20 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.gestion_inventario.ui.screens.LoginScreen
+import com.example.gestion_inventario.ui.screens.Screen2
+import com.example.gestion_inventario.ui.screens.Screen3
+import com.example.gestion_inventario.ui.screens.Screen4
 import com.example.gestion_inventario.ui.theme.Gestion_inventarioTheme
+import com.example.gestion_inventario.viewmodel.StockViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,29 +28,64 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Gestion_inventarioTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                InventoryApp()
             }
         }
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun InventoryApp() {
+    val navController = rememberNavController()
+    // Instancia única de StockViewModel compartida por todas las pantallas
+    val stockViewModel: StockViewModel = viewModel()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    Gestion_inventarioTheme {
-        Greeting("Android")
+    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = "login",
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("login") {
+                LoginScreen(
+                    onLoginSuccess = { name ->
+                        navController.navigate("screen2/$name")
+                    }
+                )
+            }
+            composable(
+                route = "screen2/{workerName}",
+                arguments = listOf(navArgument("workerName") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val name = backStackEntry.arguments?.getString("workerName") ?: ""
+                Screen2(
+                    workerName = name,
+                    viewModel = stockViewModel,
+                    onProductClick = { productId ->
+                        navController.navigate("screen3/$productId")
+                    },
+                    onNavigateToScreen4 = {
+                        navController.navigate("screen4")
+                    }
+                )
+            }
+            composable(
+                route = "screen3/{productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getInt("productId") ?: 0
+                Screen3(
+                    productId = productId,
+                    viewModel = stockViewModel,
+                    navController = navController
+                )
+            }
+            composable("screen4") {
+                Screen4(
+                    viewModel = stockViewModel,
+                    navController = navController
+                )
+            }
+        }
     }
 }
