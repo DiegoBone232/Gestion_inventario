@@ -74,7 +74,11 @@ fun InventoryApp() {
                 arguments = listOf(navArgument("productId") { type = NavType.IntType })
             ) { backStackEntry ->
                 val productId = backStackEntry.arguments?.getInt("productId") ?: 0
-                Screen3(productId = productId, viewModel = stockViewModel)
+                Screen3(
+                    productId = productId,
+                    viewModel = stockViewModel,
+                    navController = navController
+                )
             }
             composable("screen4") {
                 Screen4(viewModel = stockViewModel)

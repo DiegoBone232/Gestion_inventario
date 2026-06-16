@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.gestion_inventario.model.Producto
 import com.example.gestion_inventario.viewmodel.StockViewModel
 
@@ -157,9 +158,68 @@ fun ProductCard(
 }
 
 @Composable
-fun Screen3(productId: Int, viewModel: StockViewModel) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = "Pantalla 3 - Producto ID: $productId", style = MaterialTheme.typography.titleLarge)
+fun Screen3(productId: Int, viewModel: StockViewModel, navController: NavController) {
+    val producto = viewModel.obtenerProducto(productId)
+
+    if (producto == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Text(text = "Producto no encontrado", style = MaterialTheme.typography.headlineMedium)
+        }
+        return
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = producto.nombre,
+            style = MaterialTheme.typography.displaySmall
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = producto.descripcion,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.secondary
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Stock Actual: ${producto.stockActual}",
+            style = MaterialTheme.typography.displayMedium,
+            color = if (producto.stockActual < 5) Color.Red else Color.Unspecified
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = { viewModel.actualizarStock(producto.id, producto.stockActual - 1) },
+                enabled = producto.stockActual > 0
+            ) {
+                Text("-1", style = MaterialTheme.typography.titleLarge)
+            }
+
+            Button(
+                onClick = { viewModel.actualizarStock(producto.id, producto.stockActual + 1) }
+            ) {
+                Text("+1", style = MaterialTheme.typography.titleLarge)
+            }
+        }
+
+        Spacer(modifier = Modifier.height(48.dp))
+
+        Button(
+            onClick = { navController.popBackStack() },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Guardar y Volver")
+        }
     }
 }
 
