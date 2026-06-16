@@ -54,4 +54,11 @@ class StockViewModel : ViewModel() {
     fun obtenerProductosEnRiesgo(): List<Producto> {
         return _productos.filter { it.stockActual < 5 }
     }
+
+    /**
+     * Obtiene el conteo de productos que tienen stock en cero.
+     */
+    fun obtenerConteoStockCero(): Int {
+        return _productos.count { it.stockActual == 0 }
+    }
 }

@@ -81,7 +81,10 @@ fun InventoryApp() {
                 )
             }
             composable("screen4") {
-                Screen4(viewModel = stockViewModel)
+                Screen4(
+                    viewModel = stockViewModel,
+                    navController = navController
+                )
             }
         }
     }
